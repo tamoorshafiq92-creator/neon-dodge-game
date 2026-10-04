@@ -2,95 +2,385 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Neon Dodge</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Neon Dodge - Free Online Browser Game</title>
+
+<meta name="description" content="Play Neon Dodge, a free online browser game. Dodge falling blocks, survive as long as possible, and beat your high score.">
+
+<meta name="keywords" content="Neon Dodge, free online game, browser game, dodge game, arcade game, HTML5 game">
+
+<meta name="robots" content="index, follow">
+
+<link rel="canonical" href="https://tamoorshafiq92-creator.github.io/neon-dodge-game/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Neon Dodge - Free Online Browser Game">
+<meta property="og:description" content="Play Neon Dodge for free. Dodge falling blocks and beat your high score.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tamoorshafiq92-creator.github.io/neon-dodge-game/">
+
+<!-- Structured Data for Google -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Neon Dodge",
+  "description": "A free online browser game where players dodge falling blocks and try to achieve a high score.",
+  "url": "https://tamoorshafiq92-creator.github.io/neon-dodge-game/",
+  "genre": "Arcade",
+  "gamePlatform": "Web Browser",
+  "applicationCategory": "Game",
+  "operatingSystem": "Any"
+}
+</script>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#080b16;color:white;font-family:Arial,sans-serif;display:flex;justify-content:center;min-height:100vh;overflow:hidden}
-#wrap{width:min(100%,520px);padding:16px;text-align:center}
-h1{margin:8px 0;font-size:32px}
-#hud{display:flex;justify-content:space-between;background:#12182a;padding:12px 16px;border-radius:14px;margin-bottom:10px;font-weight:bold}
-canvas{width:100%;aspect-ratio:9/16;background:#050711;border:2px solid #27304d;border-radius:18px;display:block}
-#controls{display:flex;justify-content:center;gap:18px;margin-top:12px}
-button{border:0;border-radius:14px;padding:14px 24px;background:#202a48;color:#fff;font-size:20px;font-weight:bold;touch-action:none}
-button:active{transform:scale(.94);background:#34456f}
-#start{margin-top:12px;background:#4f46e5;width:100%;font-size:18px}
-small{opacity:.65;display:block;margin-top:9px}
+
+body{
+margin:0;
+background:#080b16;
+color:white;
+font-family:Arial,sans-serif;
+display:flex;
+justify-content:center;
+min-height:100vh;
+overflow:hidden
+}
+
+#wrap{
+width:min(100%,520px);
+padding:16px;
+text-align:center
+}
+
+h1{
+margin:8px 0;
+font-size:32px
+}
+
+.description{
+font-size:15px;
+line-height:1.5;
+opacity:.75;
+margin:4px 0 12px
+}
+
+#hud{
+display:flex;
+justify-content:space-between;
+background:#12182a;
+padding:12px 16px;
+border-radius:14px;
+margin-bottom:10px;
+font-weight:bold
+}
+
+canvas{
+width:100%;
+aspect-ratio:9/16;
+background:#050711;
+border:2px solid #27304d;
+border-radius:18px;
+display:block
+}
+
+#controls{
+display:flex;
+justify-content:center;
+gap:18px;
+margin-top:12px
+}
+
+button{
+border:0;
+border-radius:14px;
+padding:14px 24px;
+background:#202a48;
+color:#fff;
+font-size:20px;
+font-weight:bold;
+touch-action:none
+}
+
+button:active{
+transform:scale(.94);
+background:#34456f
+}
+
+#start{
+margin-top:12px;
+background:#4f46e5;
+width:100%;
+font-size:18px
+}
+
+small{
+opacity:.65;
+display:block;
+margin-top:9px
+}
 </style>
 </head>
+
 <body>
-<div id="wrap">
+
+<main id="wrap">
+
 <h1>NEON DODGE</h1>
-<div id="hud"><span>Score: <b id="score">0</b></span><span>Best: <b id="best">0</b></span></div>
-<canvas id="game" width="450" height="800"></canvas>
+
+<p class="description">
+Play Neon Dodge, a free online arcade game. Dodge falling blocks,
+survive as long as possible, and beat your high score.
+</p>
+
+<div id="hud">
+<span>Score: <b id="score">0</b></span>
+<span>Best: <b id="best">0</b></span>
+</div>
+
+<canvas
+id="game"
+width="450"
+height="800"
+aria-label="Neon Dodge game"
+></canvas>
+
 <div id="controls">
-<button id="left">◀</button><button id="right">▶</button>
+<button id="left" aria-label="Move left">◀</button>
+<button id="right" aria-label="Move right">▶</button>
 </div>
+
 <button id="start">START GAME</button>
-<small>Use ◀ ▶ or your keyboard arrow keys. Dodge the falling blocks!</small>
-</div>
+
+<small>
+Use ◀ ▶ or your keyboard arrow keys. Dodge the falling blocks!
+</small>
+
+</main>
 
 <script>
 const c=document.getElementById("game"),ctx=c.getContext("2d");
 const scoreEl=document.getElementById("score"),bestEl=document.getElementById("best"),start=document.getElementById("start");
-let best=Number(localStorage.getItem("neonBest")||0);bestEl.textContent=best;
+
+let best=Number(localStorage.getItem("neonBest")||0);
+bestEl.textContent=best;
+
 let player,enemies,score,running,last,spawn,touchLeft=false,touchRight=false;
 
 function reset(){
  player={x:c.width/2-25,y:c.height-75,w:50,h:42,speed:7};
- enemies=[];score=0;spawn=0;running=true;last=performance.now();
- scoreEl.textContent=0;start.textContent="RESTART";requestAnimationFrame(loop);
+ enemies=[];
+ score=0;
+ spawn=0;
+ running=true;
+ last=performance.now();
+ scoreEl.textContent=0;
+ start.textContent="RESTART";
+ requestAnimationFrame(loop);
 }
-function hit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+
+function hit(a,b){
+ return a.x<b.x+b.w&&
+        a.x+a.w>b.x&&
+        a.y<b.y+b.h&&
+        a.y+a.h>b.y
+}
+
 function draw(){
+
  ctx.clearRect(0,0,c.width,c.height);
+
  // grid
- ctx.strokeStyle="#11182d";ctx.lineWidth=1;
- for(let x=0;x<c.width;x+=45){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,c.height);ctx.stroke()}
- for(let y=0;y<c.height;y+=45){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(c.width,y);ctx.stroke()}
+ ctx.strokeStyle="#11182d";
+ ctx.lineWidth=1;
+
+ for(let x=0;x<c.width;x+=45){
+   ctx.beginPath();
+   ctx.moveTo(x,0);
+   ctx.lineTo(x,c.height);
+   ctx.stroke();
+ }
+
+ for(let y=0;y<c.height;y+=45){
+   ctx.beginPath();
+   ctx.moveTo(0,y);
+   ctx.lineTo(c.width,y);
+   ctx.stroke();
+ }
+
  // player
- ctx.fillStyle="#6ee7ff";ctx.shadowColor="#6ee7ff";ctx.shadowBlur=18;
- ctx.fillRect(player.x,player.y,player.w,player.h);ctx.shadowBlur=0;
+ ctx.fillStyle="#6ee7ff";
+ ctx.shadowColor="#6ee7ff";
+ ctx.shadowBlur=18;
+ ctx.fillRect(player.x,player.y,player.w,player.h);
+ ctx.shadowBlur=0;
+
  // enemies
- for(const e of enemies){ctx.fillStyle="#ff3b81";ctx.shadowColor="#ff3b81";ctx.shadowBlur=14;ctx.fillRect(e.x,e.y,e.w,e.h)}
+ for(const e of enemies){
+   ctx.fillStyle="#ff3b81";
+   ctx.shadowColor="#ff3b81";
+   ctx.shadowBlur=14;
+   ctx.fillRect(e.x,e.y,e.w,e.h);
+ }
+
  ctx.shadowBlur=0;
 }
+
 function loop(t){
+
  if(!running)return;
- const dt=Math.min((t-last)/16.67,2);last=t;
+
+ const dt=Math.min((t-last)/16.67,2);
+ last=t;
+
  if(touchLeft)player.x-=player.speed*dt;
  if(touchRight)player.x+=player.speed*dt;
- player.x=Math.max(0,Math.min(c.width-player.w,player.x));
+
+ player.x=Math.max(
+   0,
+   Math.min(c.width-player.w,player.x)
+ );
+
  spawn-=dt;
+
  if(spawn<=0){
+
    const w=35+Math.random()*35;
-   enemies.push({x:Math.random()*(c.width-w),y:-50,w,h:35+Math.random()*30,speed:3+Math.random()*2+score/300});
+
+   enemies.push({
+     x:Math.random()*(c.width-w),
+     y:-50,
+     w,
+     h:35+Math.random()*30,
+     speed:3+Math.random()*2+score/300
+   });
+
    spawn=Math.max(18,45-score/8);
  }
- for(const e of enemies)e.y+=e.speed*dt;
- enemies=enemies.filter(e=>e.y<c.height+60);
- for(const e of enemies)if(hit(player,e)){gameOver();return}
- score+=dt*.12;scoreEl.textContent=Math.floor(score);
- draw();requestAnimationFrame(loop);
+
+ for(const e of enemies)
+   e.y+=e.speed*dt;
+
+ enemies=enemies.filter(
+   e=>e.y<c.height+60
+ );
+
+ for(const e of enemies){
+
+   if(hit(player,e)){
+     gameOver();
+     return;
+   }
+
+ }
+
+ score+=dt*.12;
+ scoreEl.textContent=Math.floor(score);
+
+ draw();
+
+ requestAnimationFrame(loop);
 }
+
 function gameOver(){
- running=false;best=Math.max(best,Math.floor(score));localStorage.setItem("neonBest",best);bestEl.textContent=best;
- ctx.fillStyle="rgba(0,0,0,.72)";ctx.fillRect(0,0,c.width,c.height);
- ctx.fillStyle="#fff";ctx.textAlign="center";ctx.font="bold 42px Arial";ctx.fillText("GAME OVER",c.width/2,c.height/2-20);
- ctx.font="22px Arial";ctx.fillText("Score: "+Math.floor(score),c.width/2,c.height/2+25);
+
+ running=false;
+
+ best=Math.max(
+   best,
+   Math.floor(score)
+ );
+
+ localStorage.setItem(
+   "neonBest",
+   best
+ );
+
+ bestEl.textContent=best;
+
+ ctx.fillStyle="rgba(0,0,0,.72)";
+ ctx.fillRect(
+   0,
+   0,
+   c.width,
+   c.height
+ );
+
+ ctx.fillStyle="#fff";
+ ctx.textAlign="center";
+ ctx.font="bold 42px Arial";
+
+ ctx.fillText(
+   "GAME OVER",
+   c.width/2,
+   c.height/2-20
+ );
+
+ ctx.font="22px Arial";
+
+ ctx.fillText(
+   "Score: "+Math.floor(score),
+   c.width/2,
+   c.height/2+25
+ );
+
  start.textContent="PLAY AGAIN";
 }
+
 function bind(btn,set){
- btn.addEventListener("pointerdown",e=>{e.preventDefault();set(true)});
- btn.addEventListener("pointerup",()=>set(false));
- btn.addEventListener("pointerleave",()=>set(false));
+
+ btn.addEventListener(
+   "pointerdown",
+   e=>{
+     e.preventDefault();
+     set(true);
+   }
+ );
+
+ btn.addEventListener(
+   "pointerup",
+   ()=>set(false)
+ );
+
+ btn.addEventListener(
+   "pointerleave",
+   ()=>set(false)
+ );
 }
-bind(document.getElementById("left"),v=>touchLeft=v);
-bind(document.getElementById("right"),v=>touchRight=v);
-addEventListener("keydown",e=>{if(e.key==="ArrowLeft")touchLeft=true;if(e.key==="ArrowRight")touchRight=true});
-addEventListener("keyup",e=>{if(e.key==="ArrowLeft")touchLeft=false;if(e.key==="ArrowRight")touchRight=false});
+
+bind(
+ document.getElementById("left"),
+ v=>touchLeft=v
+);
+
+bind(
+ document.getElementById("right"),
+ v=>touchRight=v
+);
+
+addEventListener(
+ "keydown",
+ e=>{
+   if(e.key==="ArrowLeft")touchLeft=true;
+   if(e.key==="ArrowRight")touchRight=true;
+ }
+);
+
+addEventListener(
+ "keyup",
+ e=>{
+   if(e.key==="ArrowLeft")touchLeft=false;
+   if(e.key==="ArrowRight")touchRight=false;
+ }
+);
+
 start.onclick=reset;
+
 draw();
 </script>
+
 </body>
 </html>
